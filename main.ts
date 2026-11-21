@@ -1,25 +1,17 @@
 import fs from'node:fs'
-let E=process.env,I=E.MAKEFUN_INPUT_DIR,O=E.MAKEFUN_OUTPUT_DIR
-for(let n=0;++n<6;){
-let t=fs.readFileSync(I+'/i00'+n+'/level.txt','utf8'),W=t.indexOf('\n')+1,B=[],P=0
-for(let j=t.length;j--;){let c=t[j];if(c=='$'||c=='*')B.push(j);if(c=='@'||c=='+')P=j}
+let{MAKEFUN_INPUT_DIR:I,MAKEFUN_OUTPUT_DIR:O}=process.env
+for(let n=6;--n;){
+let t=fs.readFileSync(I+'/i00'+n+'/level.txt')+'',W=t.search('\n')+1,cu=[],P=t.indexOf('@')
+for(let j=t.length;j--;)t[j]>'#'&&t[j]<'-'&&cu.push(j)
 let H=P/W|0,D=[-W,W,-1,1],w=j=>'#\n'.includes(t[j])
-let F=(s,ok,m=new Set([s]))=>{for(let k=4;k--;){let y=s+D[k];if(!m.has(y)&&ok(y))m.add(y),F(y,ok,m)}return m}
-let u='',cu=[...B],pl=P,dn=[]
-for(let b of B){if(dn.includes(b))continue;let M=F(b,j=>!w(j)&&(j/W|0)!==H)
-let R2=F(pl,j=>!w(j)&&!cu.includes(j))
-let A=[],GM=0,BM=0,GL=[],ci=0
-for(let c of M){let b=A[c]=2**ci++;if(t[c]>='*'){GM+=b;GL.push(c)}if(t[c]=='$'||t[c]=='*'){BM+=b;dn.push(c)}}
-let par=new Map([[BM*1024+pl,'']]),Q=[[BM,pl]],N=[],mv=0
-while(Q.length&&!mv){for(let[bm,p]of Q){
-if(bm==GM){mv=par.get(bm*1024+p);pl=p;break}
-for(let d=4;d--;){let np=p+D[d];if(!M.has(np)&&!R2.has(np))continue;let b=A[np],nm=bm,X=Q
-if(bm/b&1){let z=np+D[d],b2=A[z];if(!b2||bm/b2&1)continue;nm=bm-b+b2;X=N}
-let nk=nm*1024+np
-if(!par.has(nk))par.set(nk,par.get(bm*1024+p)+'udlr'[d]),X.push([nm,np])}}
-Q=N;N=[]}
-if(!mv)throw'x'
-u+=mv;cu=cu.filter(x=>!M.has(x)).concat(GL)
-}
-let o=O+'/i00'+n;fs.mkdirSync(o,{recursive:!0});fs.writeFileSync(o+'/solution.txt',u)
-}
+let u='',pl=P,dn=[]
+for(let b of cu){if(dn.includes(b))continue
+let M=new Set(),A=[],G=0,S=0,L=[],x=1,F=s=>{if(M.has(s)||w(s)||(s/W|0)==H)return;M.add(s);A[s]=x;t[s]>'$'&&(G+=x,L.push(s));t[s]>'#'&&t[s]<'-'&&(S+=x,dn.push(s));x*=2;for(let e of D)F(s+e)}
+F(b)
+let Q=[[S,pl,'']],N=[],V=new Set(),mv=0
+while(Q.length&&!mv){for(let[s,p,pa]of Q){if(s==G){mv=pa;pl=p;break}
+for(let d=4;d--;){let q=p+D[d],r=s,X=Q,y;if(!M.has(q)&&(w(q)||cu.includes(q)))continue
+if(s/A[q]&1){y=A[q+D[d]];if(!y|s/y&1)continue;r=s-A[q]+y;X=N}
+let k=r*1024+q;if(!V.has(k))V.add(k),X.push([r,q,pa+'udlr'[d]])}}Q=N;N=[]}
+u+=mv;cu=cu.filter(x=>!M.has(x)).concat(L)}
+let o=O+'/i00'+n;fs.mkdirSync(o,{recursive:!0});fs.writeFileSync(o+'/solution.txt',u)}
